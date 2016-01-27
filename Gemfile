@@ -47,3 +47,5 @@ end
 group :test do
   gem 'shoulda'
 end
+
+gem 'rack-cors', :require => 'rack/cors'
