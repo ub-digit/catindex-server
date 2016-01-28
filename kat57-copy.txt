@@ -1,0 +1,10 @@
+Från textfil med ipac-data (ipac-to-catindex3.tab).
+
+Skapa en tabell i databasen:
+CREATE TABLE ipacdata (ipac_image_id INT, ipac_note TEXT, ipac_lookup TEXT);
+
+Ladda in ipac-filen till denna tabell (delimiter är ett tabbtecken):
+COPY ipacdata (ipac_image_id, ipac_note, ipac_lookup) FROM '/tmp/ipac-to-catindex3.tab' DELIMITER '	';
+
+Skapa tomma kort för varje ipacdata-rad.
+INSERT INTO cards (ipac_image_id, ipac_note, ipac_lookup, created_at, updated_at) SELECT ipac_image_id, ipac_note, ipac_lookup, now(), now() FROM ipacdata;
