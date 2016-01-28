@@ -49,4 +49,12 @@ group :test do
   gem 'shoulda'
 end
 
+group :development do
+  gem 'capistrano'
+  gem 'capistrano-rails'
+  gem 'capistrano-passenger'
+  gem 'capistrano-bundler'
+  gem 'capistrano-rvm'
+end
+
 gem 'rack-cors', :require => 'rack/cors'
