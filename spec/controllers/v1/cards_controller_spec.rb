@@ -8,7 +8,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         user = create(:user)
         card = create(:not_started_card)
 
-        get :show, registration_type: "PRIMARY", username: user.username
+        get :show, registration_type: "primary", username: user.username
 
         expect(json['card']).to_not be nil
         expect(json['card']['id']).to eq card.id

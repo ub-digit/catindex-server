@@ -11,7 +11,7 @@ class V1::CardsController < ApplicationController
     
     registration_type = params[:registration_type]
 
-    if registration_type == "PRIMARY"
+    if registration_type == "primary"
       # Find card for primary registration
       card = Card.where(primary_registrator_start: nil).first
       if !card.update_attributes(primary_registator_username: user.username, primary_registrator_start: Time.now)
@@ -21,7 +21,6 @@ class V1::CardsController < ApplicationController
       end
     end
 
-    pp card
     if card
       @response[:card] = card
     else
