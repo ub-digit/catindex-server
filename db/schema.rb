@@ -11,7 +11,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160127130926) do
+ActiveRecord::Schema.define(version: 20160128102732) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "access_tokens", force: :cascade do |t|
     t.integer  "user_id"
@@ -19,6 +22,35 @@ ActiveRecord::Schema.define(version: 20160127130926) do
     t.datetime "token_expire"
     t.datetime "created_at",   null: false
     t.datetime "updated_at",   null: false
+  end
+
+  create_table "cards", force: :cascade do |t|
+    t.text     "card_type"
+    t.text     "primary_registator_username"
+    t.text     "secondary_registrator_username"
+    t.text     "classification"
+    t.text     "collection"
+    t.text     "lookup_field_value"
+    t.text     "lookup_field_type"
+    t.text     "title"
+    t.integer  "year_from"
+    t.integer  "year_to"
+    t.boolean  "no_year",                        default: false
+    t.text     "primary_registrator_problem"
+    t.text     "secondary_registrator_problem"
+    t.json     "primary_registrator_values"
+    t.json     "secondary_registrator_values"
+    t.datetime "primary_registrator_start"
+    t.datetime "secondary_registrator_start"
+    t.datetime "primary_registrator_end"
+    t.datetime "secondary_registrator_end"
+    t.text     "additional_authors",             default: [],                 array: true
+    t.text     "reference_text"
+    t.integer  "ipac_image_id"
+    t.text     "ipac_note"
+    t.text     "ipac_lookup"
+    t.datetime "created_at",                                     null: false
+    t.datetime "updated_at",                                     null: false
   end
 
   create_table "users", force: :cascade do |t|
