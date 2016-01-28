@@ -10,6 +10,13 @@ class User < ActiveRecord::Base
 
   before_save :encrypt_password
   
+  def as_json(opts={})
+    {
+      username: username,
+      role: role
+    }
+  end
+
   # Encrypt password before saving, but only for new users or when setting new password
   def encrypt_password
     if self.id.nil? || self.password_changed?
