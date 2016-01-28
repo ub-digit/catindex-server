@@ -7,6 +7,8 @@
 development:
   adapter: postgresql
   encoding: utf8
+  collation: sv_SE.UTF-8
+  ctype: sv_SE.UTF-8
   database: catindex_development
   username: postgres
   host: localhost
@@ -18,6 +20,8 @@ development:
 test:
   adapter: postgresql
   encoding: utf8
+  collation: sv_SE.UTF-8
+  ctype: sv_SE.UTF-8
   database: catindex_test
   username: postgres
   host: localhost
@@ -26,6 +30,8 @@ test:
 production:
   adapter: postgresql
   encoding: utf8
+  collation: sv_SE.UTF-8
+  ctype: sv_SE.UTF-8
   database: catindex_production
   username: postgres
   host: localhost
