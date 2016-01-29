@@ -67,6 +67,6 @@ class V1::CardsController < V1::V1Controller
   end
 
   def update_card_params
-    params.require(:card).permit(:card_type, :classification, :collection, :lookup_field_value, :lookup_field_type, :title, :year_from, :year_to, :no_year, :additional_authors, :reference_text)
+    params.require(:card).permit(:card_type, :classification, :collection, :lookup_field_value, :lookup_field_type, :title, :year_from, :year_to, :no_year, :reference_text, :additional_authors => [])
   end
 end
