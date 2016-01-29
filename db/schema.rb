@@ -53,6 +53,12 @@ ActiveRecord::Schema.define(version: 20160128102732) do
     t.datetime "updated_at",                                     null: false
   end
 
+  create_table "ipacdata", id: false, force: :cascade do |t|
+    t.integer "ipac_image_id"
+    t.text    "ipac_note"
+    t.text    "ipac_lookup"
+  end
+
   create_table "users", force: :cascade do |t|
     t.text     "username"
     t.text     "password"
