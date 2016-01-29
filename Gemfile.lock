@@ -165,6 +165,3 @@ DEPENDENCIES
   rails (= 4.2.0)
   rspec-rails
   shoulda
-
-BUNDLED WITH
-   1.10.6

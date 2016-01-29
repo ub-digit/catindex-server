@@ -56,4 +56,10 @@ class User < ActiveRecord::Base
     token_object.update_attribute(:token_expire, Time.now + DEFAULT_TOKEN_EXPIRE)
     true
   end
+
+  def has_right?(permission_level)
+    return true if permission_level == "admin" && role == "ADMIN"
+    return true if permission_level == "oper" && ["ADMIN", "OPER"].include?(role)
+    return false
+  end
 end

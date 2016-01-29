@@ -1,4 +1,4 @@
-class V1::CardsController < ApplicationController
+class V1::CardsController < V1::V1Controller
 
   def show
     username = params[:username]

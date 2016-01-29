@@ -1,14 +1,29 @@
 require 'rails_helper'
 
 RSpec.describe V1::CardsController, :type => :controller do
+  before :each do
+    api_users = APP_CONFIG['api_key_users']
+    @test_api_key = api_users.find { |user| user['username'] == 'test_key_user'}['api_key']
+    @test_admin_api_key = api_users.find { |user| user['username'] == 'test_admin_key_user'}['api_key']
+  end
 
   describe "show" do
+    context "without access token or key" do
+      it "should fail with 403" do
+        user = create(:user)
+        card = create(:not_started_card)
+
+        get :show, registration_type: "primary", username: user.username
+        
+        expect(response.status).to eq(403)
+      end
+    end
     context "for primary registration with cards" do
       it "should return a card for registration" do
         user = create(:user)
         card = create(:not_started_card)
 
-        get :show, registration_type: "primary", username: user.username
+        get :show, registration_type: "primary", username: user.username, api_key: @test_api_key
 
         expect(json['card']).to_not be nil
         expect(json['card']['id']).to eq card.id

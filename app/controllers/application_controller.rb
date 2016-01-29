@@ -38,7 +38,7 @@ class ApplicationController < ActionController::Base
   # Sets user according to token or api_key, or guest if none is valid
   def validate_access
     if !validate_token && !validate_key
-      @current_user = User.new(username: 'guest', name: 'Guest', role: "GUEST")
+      @current_user = User.new(username: 'guest', role: "GUEST")
     end
   end
 
@@ -72,5 +72,13 @@ class ApplicationController < ActionController::Base
   end
 
   # Returns mtoken from request headers or params[:token] if set
-
+  def get_token
+    if params.has_key?(:token) && params[:token] != ''
+      return params[:token]
+    end
+    return nil if !request || !request.headers
+    token_response = request.headers['Authorization']
+    return nil if !token_response
+    token_response[/^Token (.*)/,1]
+  end
 end

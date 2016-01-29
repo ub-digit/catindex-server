@@ -1,4 +1,5 @@
-class V1::UsersController < ApplicationController
+class V1::UsersController < V1::V1Controller
+  before_filter -> { validate_rights 'admin' }
 
   def index
     @response[:users] = User.all
