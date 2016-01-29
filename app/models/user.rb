@@ -57,6 +57,12 @@ class User < ActiveRecord::Base
     true
   end
 
+  # Returns all currently valid tokens for user
+  def valid_tokens
+    clear_expired_tokens
+    access_tokens.pluck(:token)
+  end
+
   def has_right?(permission_level)
     return true if permission_level == "admin" && role == "ADMIN"
     return true if permission_level == "oper" && ["ADMIN", "OPER"].include?(role)

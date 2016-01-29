@@ -13,7 +13,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         user = create(:user)
         card = create(:not_started_card)
 
-        get :show, registration_type: "primary", username: user.username
+        get :show, registration_type: "primary"
         
         expect(response.status).to eq(403)
       end
@@ -23,7 +23,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         user = create(:user)
         card = create(:not_started_card)
 
-        get :show, registration_type: "primary", username: user.username, api_key: @test_api_key
+        get :show, registration_type: "primary", token: user.valid_tokens.first
 
         expect(json['card']).to_not be nil
         expect(json['card']['id']).to eq card.id
