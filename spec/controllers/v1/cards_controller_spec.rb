@@ -27,8 +27,38 @@ RSpec.describe V1::CardsController, :type => :controller do
 
         expect(json['card']).to_not be nil
         expect(json['card']['id']).to eq card.id
-        expect(json['card']['primary_registator_username']).to eq user.username
+        expect(json['card']['primary_registrator_username']).to eq user.username
         expect(json['card']['primary_registrator_start']).to_not be nil
+      end
+    end
+  end
+
+  describe "update" do
+    context "for a primary valid card" do
+      it "should return card" do
+        user = create(:user)
+        card = create(:primary_started_card, primary_registrator_username: user.username, title: 'testtitle', primary_registrator_problem: 'Problemtext')
+
+        put :update, id: card.id, card: card.as_json.merge({registration_type: 'primary'}), token: user.valid_tokens.first
+
+        expect(json['card']).to_not be nil
+        expect(json['card']['primary_registrator_end']).to_not be nil
+        expect(json['card']['primary_registrator_values']['title']).to eq 'testtitle'
+        expect(json['card']['primary_registrator_problem']).to eq 'Problemtext'
+        
+      end
+    end
+
+    context "for a primary valid card with wrong user" do
+      it "should return an error code" do
+        user1 = create(:user)
+        user2 = create(:user)
+        card = create(:primary_started_card, primary_registrator_username: user1.username)
+
+        put :update, id: card.id, card: card.as_json.merge({registration_type: 'primary'}), token: user2.valid_tokens.first
+
+        expect(response.status).to eq 404
+        expect(json['card']).to be nil
       end
     end
   end
