@@ -5,5 +5,6 @@ Rails.application.routes.draw do
     post 'users', to: 'users#create'
     get 'users/statistics', to: 'users#statistics'
     get 'cards/:registration_type', to: 'cards#show'
+    put 'cards/:id', to: 'cards#update'
   end
 end
