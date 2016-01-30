@@ -1,5 +1,5 @@
 class V1::UsersController < V1::V1Controller
-  before_filter -> { validate_rights 'admin' }
+  before_filter -> { validate_rights 'admin' }, except: [:statistics]
 
   def index
     @response[:users] = User.all
@@ -8,7 +8,7 @@ class V1::UsersController < V1::V1Controller
 
   def create
     user = User.new(user_params)
-    
+
     # Save user, or return error message
     if !user.save
       error_msg(ErrorCodes::VALIDATION_ERROR, "Could not create user", user.errors)
@@ -21,5 +21,12 @@ class V1::UsersController < V1::V1Controller
 
   def user_params
     params.require(:user).permit(:username, :password, :role)
+  end
+
+  def statistics
+    username = @current_user.username
+
+    @response[:user] = "HEJ 1010101 - #{username} - !!!"
+    render_json
   end
 end
