@@ -23,7 +23,7 @@ RSpec.describe V1::UsersController, :type => :controller do
     context "without access key or token for ADMIN user" do
       it "should fail with 403" do
         post :create, user: {username: 'testuser', password: 'secret', role: 'OPER'}
-        
+
         expect(response.status).to eq(403)
       end
     end
@@ -43,6 +43,22 @@ RSpec.describe V1::UsersController, :type => :controller do
         expect(response.status).to eq 422
         expect(json['user']).to eq nil
       end
+    end
+  end
+
+  describe "statistics" do
+    it "should get correct user statistic values" do
+      oper_1 = create(:user, username: 'pelle', password: 'pelle', role: 'OPER')
+      oper_2 = create(:user, username: 'olle', password: 'olle', role: 'OPER')
+      card = create(:primary_started_card, primary_registrator_username: oper_1.username, title: 'asdfasdf', primary_registrator_end: Time.now)
+
+      get :statistics, id: oper_1.id, token: oper_1.valid_tokens.first
+
+      expect(response.status).to eq 200
+      expect(json['user_statistics']).to_not be nil
+      expect(json['user_statistics']['primary_registered_card_count']).to_not be nil
+      expect(json['user_statistics']['secondary_registered_card_count']).to_not be nil
+      expect(json['user_statistics']['available_for_secondary_registration_count']).to_not be nil
     end
   end
 end

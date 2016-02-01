@@ -70,4 +70,56 @@ RSpec.describe User, :type => :model do
       end
     end
   end
+
+  describe "user statistics" do
+    before :each do
+      @operator_1 = create(:user, username: 'pelle', password: 'pelle', role: 'OPER')
+      @operator_2 = create(:user, username: 'olle', password: 'olle', role: 'OPER')
+      @operator_3 = create(:user, username: 'kalle', password: 'kalle', role: 'OPER')
+    end
+    context "count primary registered cards" do
+      it "should return the number the user has primary registered cards" do
+        create_list(:primary_ended_card, 7, primary_registrator_username: @operator_1.username)
+        expect(@operator_1.primary_registered_card_count).to eq(7)
+      end
+      it "should return zero if the user has no primary registered cards" do
+        expect(@operator_1.primary_registered_card_count).to eq(0)
+      end
+    end
+    context "count secondary registered cards" do
+      it "should return the number if the user has secondary registered cards" do
+        create_list(:secondary_ended_card, 5, secondary_registrator_username: @operator_1.username)
+        expect(@operator_1.secondary_registered_card_count).to eq(5)
+      end
+      it "should return zero if the user has only an ongoing secondary registration card" do
+        create(:secondary_started_card, secondary_registrator_username: @operator_1.username)
+        expect(@operator_1.secondary_registered_card_count).to eq(0)
+      end
+    end
+    context "count cards available for secondary registration" do
+      it "should return number if secondary registration never starded" do
+        create_list(:primary_ended_card, 2, primary_registrator_username: @operator_1.username)
+        expect(@operator_2.available_for_secondary_registration_count).to eq(2)
+      end
+
+      it "should return number if secondary registration is started but not finished before expiration" do
+        create_list(:card, 2, primary_registrator_end: 3.days.ago,
+            primary_registrator_username: @operator_1.username,
+            secondary_registrator_end: nil,
+            secondary_registrator_start: 2.days.ago,
+            secondary_registrator_username: @operator_2.username)
+        expect(@operator_3.available_for_secondary_registration_count).to eq(2)
+      end
+
+      it "should return zero if there are only finished secondary registrations" do
+        create_list(:primary_started_card, 3, primary_registrator_username: @operator_1.username, secondary_registrator_end: @now, secondary_registrator_username: @operator_2.username)
+        expect(@operator_3.available_for_secondary_registration_count).to eq(0)
+      end
+
+      it "should return zero if there are no cards" do
+        expect(@operator_3.available_for_secondary_registration_count).to eq(0)
+      end
+
+    end
+  end
 end

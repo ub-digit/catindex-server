@@ -3,7 +3,7 @@ Rails.application.routes.draw do
   namespace :v1, :defaults => {:format => :json} do
     get 'users', to: 'users#index'
     post 'users', to: 'users#create'
-    get 'users/statistics', to: 'users#statistics'
+    get 'users/:id/statistics', to: 'users#statistics'
     get 'cards/:registration_type', to: 'cards#show'
     put 'cards/:id', to: 'cards#update'
   end
