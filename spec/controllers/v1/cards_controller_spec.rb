@@ -100,6 +100,17 @@ RSpec.describe V1::CardsController, :type => :controller do
         expect(response.status).to eq 404
       end
     end
+    context "for secondary registration when current user did primary registration" do
+      it "should not return card" do
+        user = create(:user)
+        card = create(:primary_ended_card, primary_registrator_username: user.username)
+
+        get :show, registration_type: "secondary", token: user.valid_tokens.first
+
+        expect(json['card']).to be nil
+        expect(response.status).to eq 404
+      end
+    end
   end
 
   describe "update" do
