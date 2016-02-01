@@ -24,19 +24,21 @@ class V1::UsersController < V1::V1Controller
   end
 
   def statistics
-    user_id = params[:id]
-    user = User.find_by_id(user_id)
+    username = params[:id]
+    u = User.find_by_username(username)
 
-    if user.present?
-      user_statistics = {}
-      user_statistics.merge!(primary_registered_card_count: user.primary_registered_card_count)
-      user_statistics.merge!(secondary_registered_card_count: user.secondary_registered_card_count)
-      user_statistics.merge!(available_for_secondary_registration_count: user.available_for_secondary_registration_count)
+    if u.present?
+      user = {}
+      statistics = {}
+      statistics.merge!(primary_registered_card_count: u.primary_registered_card_count)
+      statistics.merge!(secondary_registered_card_count: u.secondary_registered_card_count)
+      statistics.merge!(available_for_secondary_registration_count: u.available_for_secondary_registration_count)
+      user.merge!(statistics: statistics)
 
-      @response[:user_statistics] = user_statistics
+      @response[:user] = user
       render_json
     else
-      error_msg(ErrorCodes::OBJECT_ERROR, "No user found with id: #{user_id}.")
+      error_msg(ErrorCodes::OBJECT_ERROR, "No user found with username: #{username}.")
       render_json
     end
   end

@@ -52,13 +52,13 @@ RSpec.describe V1::UsersController, :type => :controller do
       oper_2 = create(:user, username: 'olle', password: 'olle', role: 'OPER')
       card = create(:primary_started_card, primary_registrator_username: oper_1.username, title: 'asdfasdf', primary_registrator_end: Time.now)
 
-      get :statistics, id: oper_1.id, token: oper_1.valid_tokens.first
+      get :statistics, id: oper_1.username, token: oper_1.valid_tokens.first
 
       expect(response.status).to eq 200
-      expect(json['user_statistics']).to_not be nil
-      expect(json['user_statistics']['primary_registered_card_count']).to_not be nil
-      expect(json['user_statistics']['secondary_registered_card_count']).to_not be nil
-      expect(json['user_statistics']['available_for_secondary_registration_count']).to_not be nil
+      expect(json['user']['statistics']).to_not be nil
+      expect(json['user']['statistics']['primary_registered_card_count']).to_not be nil
+      expect(json['user']['statistics']['secondary_registered_card_count']).to_not be nil
+      expect(json['user']['statistics']['available_for_secondary_registration_count']).to_not be nil
     end
   end
 end
