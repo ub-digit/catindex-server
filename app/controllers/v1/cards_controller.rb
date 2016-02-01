@@ -7,8 +7,19 @@ class V1::CardsController < V1::V1Controller
 
     if registration_type == "primary"
       # Find card for primary registration
-      card = Card.where(primary_registrator_start: nil).order(:ipac_image_id).first
-      if !card.update_attributes(primary_registrator_username: username, primary_registrator_start: Time.now)
+      card = Card.where("primary_registrator_start IS NULL OR (now() > primary_registrator_start + interval '1' day)").where(primary_registrator_end: nil).order(:ipac_image_id).first
+      if card && !card.update_attributes(primary_registrator_username: username, primary_registrator_start: Time.now)
+        error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card", card.errors)
+        render_json
+        return
+      end
+    end
+
+    if registration_type == "secondary"
+      # Find card for primary registration
+      cards = Card.where.not(primary_registrator_username: username).where.not(primary_registrator_end: nil).where("secondary_registrator_start IS NULL OR (now() > secondary_registrator_start + interval '1' day)").where(secondary_registrator_end: nil).order(:ipac_image_id)
+      card = cards.first
+      if card && !card.update_attributes(secondary_registrator_username: username, secondary_registrator_start: Time.now)
         error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card", card.errors)
         render_json
         return
@@ -51,6 +62,15 @@ class V1::CardsController < V1::V1Controller
           if !card.update_attributes({primary_registrator_values: card.registrator_json,
                                  primary_registrator_problem: card_params[:primary_registrator_problem],
                                  primary_registrator_end: Time.now})
+            error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card #{card.id}", card.errors)
+            raise ActiveRecord::Rollback
+          end
+        end
+
+        if registration_type == "secondary"
+          if !card.update_attributes({secondary_registrator_values: card.registrator_json,
+                                 secondary_registrator_problem: card_params[:secondary_registrator_problem],
+                                 secondary_registrator_end: Time.now})
             error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card #{card.id}", card.errors)
             raise ActiveRecord::Rollback
           end
