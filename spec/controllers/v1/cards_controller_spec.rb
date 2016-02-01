@@ -31,6 +31,34 @@ RSpec.describe V1::CardsController, :type => :controller do
         expect(json['card']['primary_registrator_start']).to_not be nil
       end
     end
+    context "for primary registration with card that is is started two days ago and not ended" do
+      it "should return card" do
+        old_user = create(:user)
+        old_starttime = 2.days.ago
+        user = create(:user)
+        card = create(:not_started_card)
+
+        card.update_attributes(primary_registrator_start: old_starttime, primary_registrator_username: old_user.username)
+
+        get :show, registration_type: "primary", token: user.valid_tokens.first
+
+        expect(json['card']).to_not be nil
+        expect(json['card']['id']).to eq card.id
+        expect(json['card']['primary_registrator_username']).to eq user.username
+        expect(json['card']['primary_registrator_start']).to_not eq old_starttime
+      end
+    end
+    context "for primary registration with card that is started less than a day ago and not ended" do
+      it "should not return card" do
+        user = create(:user)
+        card = create(:primary_started_card)
+
+        get :show, registration_type: "primary", token: user.valid_tokens.first
+
+        expect(json['card']).to be nil
+        expect(response.status).to eq 404
+      end
+    end
   end
 
   describe "update" do

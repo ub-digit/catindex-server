@@ -7,8 +7,8 @@ class V1::CardsController < V1::V1Controller
 
     if registration_type == "primary"
       # Find card for primary registration
-      card = Card.where(primary_registrator_start: nil).order(:ipac_image_id).first
-      if !card.update_attributes(primary_registrator_username: username, primary_registrator_start: Time.now)
+      card = Card.where("primary_registrator_start IS NULL OR (now() > primary_registrator_start + interval '1' day)").where(primary_registrator_end: nil).order(:ipac_image_id).first
+      if card && !card.update_attributes(primary_registrator_username: username, primary_registrator_start: Time.now)
         error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card", card.errors)
         render_json
         return
