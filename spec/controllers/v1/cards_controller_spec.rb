@@ -61,8 +61,9 @@ RSpec.describe V1::CardsController, :type => :controller do
     end
     context "for secondaryregistration with cards" do
       it "should return a card for registration" do
+        old_user = create(:user)
         user = create(:user)
-        card = create(:primary_ended_card)
+        card = create(:primary_ended_card, primary_registrator_username: old_user.username)
 
         get :show, registration_type: "secondary", token: user.valid_tokens.first
 
@@ -74,10 +75,11 @@ RSpec.describe V1::CardsController, :type => :controller do
     end
     context "for secondary registration with card that is is started two days ago and not ended" do
       it "should return card" do
+        primary_user = create(:user)
         old_user = create(:user)
         old_starttime = 2.days.ago
         user = create(:user)
-        card = create(:primary_ended_card)
+        card = create(:primary_ended_card, primary_registrator_username: primary_user.username)
 
         card.update_attributes(secondary_registrator_start: old_starttime, secondary_registrator_username: old_user.username)
 
@@ -91,8 +93,10 @@ RSpec.describe V1::CardsController, :type => :controller do
     end
     context "for secondary registration with card that is started less than a day ago and not ended" do
       it "should not return card" do
+        primary_user = create(:user)
+        secondary_user = create(:user)
         user = create(:user)
-        card = create(:secondary_started_card)
+        card = create(:secondary_started_card, primary_registrator_username: primary_user.username, secondary_registrator_username: secondary_user.username)
 
         get :show, registration_type: "secondary", token: user.valid_tokens.first
 
@@ -125,6 +129,21 @@ RSpec.describe V1::CardsController, :type => :controller do
         expect(json['card']['primary_registrator_end']).to_not be nil
         expect(json['card']['primary_registrator_values']['title']).to eq 'testtitle'
         expect(json['card']['primary_registrator_problem']).to eq 'Problemtext'
+        
+      end
+    end
+
+    context "for a secondary valid card" do
+      it "should return card" do
+        user = create(:user)
+        card = create(:secondary_started_card, secondary_registrator_username: user.username, title: 'testtitle', secondary_registrator_problem: 'Problemtext')
+
+        put :update, id: card.id, card: card.as_json.merge({registration_type: 'secondary'}), token: user.valid_tokens.first
+
+        expect(json['card']).to_not be nil
+        expect(json['card']['secondary_registrator_end']).to_not be nil
+        expect(json['card']['secondary_registrator_values']['title']).to eq 'testtitle'
+        expect(json['card']['secondary_registrator_problem']).to eq 'Problemtext'
         
       end
     end
