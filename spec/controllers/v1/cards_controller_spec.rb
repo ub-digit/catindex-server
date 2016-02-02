@@ -65,7 +65,16 @@ RSpec.describe V1::CardsController, :type => :controller do
         end
       end
     end
-    # problem all,no_problem,only_problem
+
+    context "with given image_id" do
+      context "if the card exists" do
+        it "should return the corresponding card" do
+          card = create(:card, ipac_image_id: 12345)
+          get :index, image_id: 12345, token: @admin_user.valid_tokens.first
+          expect(json['cards'].count).to eq(1)
+        end
+      end
+    end
   end
 
   describe "show" do

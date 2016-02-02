@@ -12,7 +12,7 @@ class V1::CardsController < V1::V1Controller
     # problem all, no_problem,only_problem
     #
     # image_id (text)
-    ipac_image_id = params[:ipac_image_id] || ''
+    ipac_image_id = params[:image_id] || ''
     sortfield = params[:sortfield] || 'created_at'
     sortdir = params[:sortdir] || 'DESC'
 
