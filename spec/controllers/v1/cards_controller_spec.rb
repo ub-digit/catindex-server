@@ -7,6 +7,67 @@ RSpec.describe V1::CardsController, :type => :controller do
     @test_admin_api_key = api_users.find { |user| user['username'] == 'test_admin_key_user'}['api_key']
   end
 
+  describe "index" do
+    before :each do
+      @admin_user = create(:admin_user)
+    end
+    context "without credentials, access token or key" do
+      it "should fail with 403" do
+        cards = create_list(:card, 10)
+
+        get :index
+
+        expect(response.status).to eq(403)
+      end
+    end
+    context "with no filters" do
+      it "should return a list with all cards" do
+        cards = create_list(:card, 10)
+        get :index, token: @admin_user.valid_tokens.first
+
+        expect(json['cards']).to_not be nil
+        expect(json['cards'].count).to eq(10)
+      end
+    end
+
+    context "with problem filter" do
+      before :each do
+        cards = create_list(:not_started_card, 7)
+        cards += create_list(:primary_ended_card, 6)
+        cards += create_list(:secondary_ended_card, 5)
+        cards += create_list(:tertiary_ended_card, 4)
+        cards += create_list(:primary_problem_card, 3)
+        cards += create_list(:secondary_problem_card, 2)
+        cards += create_list(:tertiary_problem_card, 1)
+      end
+      context "with review_problems filter" do
+        it "should return a list of reviewed cards with problems" do
+          get :index, problem: 'review_problems', token: @admin_user.valid_tokens.first
+          expect(json['cards'].count).to eq(2)
+        end
+      end
+      context "with admin_problems filter" do
+        it "should return a list of admin cards with problems" do
+          get :index, problem: 'admin_problems', token: @admin_user.valid_tokens.first
+          expect(json['cards'].count).to eq(1)
+        end
+      end
+      context "with all_problems filter" do
+        it "should return a list of review and admin cards with problems" do
+          get :index, problem: 'all_problems', token: @admin_user.valid_tokens.first
+          expect(json['cards'].count).to eq(3)
+        end
+      end
+      context "with all filter" do
+        it "should return a list with all cards" do
+          get :index, problem: 'all', token: @admin_user.valid_tokens.first
+          expect(json['cards'].count).to eq(28)
+        end
+      end
+    end
+    # problem all,no_problem,only_problem
+  end
+
   describe "show" do
     context "without access token or key" do
       it "should fail with 403" do
@@ -14,7 +75,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         card = create(:not_started_card)
 
         get :show, registration_type: "primary"
-        
+
         expect(response.status).to eq(403)
       end
     end
@@ -129,7 +190,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         expect(json['card']['primary_registrator_end']).to_not be nil
         expect(json['card']['primary_registrator_values']['title']).to eq 'testtitle'
         expect(json['card']['primary_registrator_problem']).to eq 'Problemtext'
-        
+
       end
     end
 
@@ -144,7 +205,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         expect(json['card']['secondary_registrator_end']).to_not be nil
         expect(json['card']['secondary_registrator_values']['title']).to eq 'testtitle'
         expect(json['card']['secondary_registrator_problem']).to eq 'Problemtext'
-        
+
       end
     end
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160202092720) do
+ActiveRecord::Schema.define(version: 20160202144558) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,8 +36,8 @@ ActiveRecord::Schema.define(version: 20160202092720) do
     t.integer  "year_from"
     t.integer  "year_to"
     t.boolean  "no_year",                        default: false
-    t.text     "primary_registrator_problem"
-    t.text     "secondary_registrator_problem"
+    t.text     "primary_registrator_problem",    default: ""
+    t.text     "secondary_registrator_problem",  default: ""
     t.json     "primary_registrator_values"
     t.json     "secondary_registrator_values"
     t.datetime "primary_registrator_start"
@@ -52,7 +52,7 @@ ActiveRecord::Schema.define(version: 20160202092720) do
     t.datetime "created_at",                                     null: false
     t.datetime "updated_at",                                     null: false
     t.text     "tertiary_registrator_username"
-    t.text     "tertiary_registrator_problem"
+    t.text     "tertiary_registrator_problem",   default: ""
     t.json     "tertiary_registrator_values"
     t.datetime "tertiary_registrator_start"
     t.datetime "tertiary_registrator_end"

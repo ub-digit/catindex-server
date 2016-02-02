@@ -16,4 +16,18 @@ class Card < ActiveRecord::Base
       reference_text: reference_text
     }
   end
+
+  def self.admin_problems(cards = Card)
+    cards.where.not(tertiary_registrator_end: nil).where.not(tertiary_registrator_problem: '')
+  end
+
+  def self.review_problems(cards = Card)
+    cards.where(tertiary_registrator_end: nil)
+          .where.not(secondary_registrator_problem: '')
+          .where.not(secondary_registrator_end: nil)
+  end
+
+  def self.all_problems(cards = Card)
+    cards.where("id in (?) or id in (?)", admin_problems.select(:id), review_problems.select(:id))
+  end
 end

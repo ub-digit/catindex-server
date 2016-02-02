@@ -1,8 +1,60 @@
 class V1::CardsController < V1::V1Controller
+  before_filter -> { validate_rights 'admin' }, only: [:index]
+
+  def index
+    pagination = {}
+    query = {}
+    # problem
+    # all problem eller inte problem
+    # all_problems mot+adm m problem
+    # review_problems mot m probl
+    # admin_problems adm m probl
+    # problem all, no_problem,only_problem
+    #
+    # image_id (text)
+    ipac_image_id = params[:ipac_image_id] || ''
+    sortfield = params[:sortfield] || 'created_at'
+    sortdir = params[:sortdir] || 'DESC'
+
+    problem = params[:problem] || 'all'
+
+    @cards = Card.paginate(page: params[:page])
+    if @cards.current_page > @cards.total_pages
+      @cards = Card.paginate(page: 1)
+    end
+
+    if ipac_image_id.present?
+      @cards = @cards.where(ipac_image_id: ipac_image_id)
+    else
+      if (problem == 'admin_problems')
+        @cards = Card.admin_problems(@cards)
+      end
+      if (problem == 'review_problems')
+        @cards = Card.review_problems(@cards)
+      end
+      if (problem == 'all_problems')
+        @cards = Card.all_problems(@cards)
+      end
+    end
+
+    #@cards = @cards.where.not(tertiary_registrator_end: nil) if level == ''
+
+    @cards = @cards.order(sortfield)
+    @cards = @cards.reverse_order if sortdir.upcase == 'DESC'
+
+    pagination[:pages] = @cards.total_pages
+    pagination[:page] = @cards.current_page
+    pagination[:next] = @cards.next_page
+    pagination[:previous] = @cards.previous_page
+
+    query[:total] = @cards.total_entries
+
+    render json: {cards: @cards, meta: {pagination: pagination, query: query}}, status: 200
+  end
 
   def show
     username = @current_user.username
-    
+
     registration_type = params[:registration_type]
 
     if registration_type == "primary"
@@ -57,7 +109,7 @@ class V1::CardsController < V1::V1Controller
 
     Card.transaction do
       if card.update_attributes(update_card_params)
-        
+
         if registration_type == "primary"
           if !card.update_attributes({primary_registrator_values: card.registrator_json,
                                  primary_registrator_problem: card_params[:primary_registrator_problem],
