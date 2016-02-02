@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160129124727) do
+ActiveRecord::Schema.define(version: 20160202092720) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -51,6 +51,11 @@ ActiveRecord::Schema.define(version: 20160129124727) do
     t.text     "ipac_lookup"
     t.datetime "created_at",                                     null: false
     t.datetime "updated_at",                                     null: false
+    t.text     "tertiary_registrator_username"
+    t.text     "tertiary_registrator_problem"
+    t.json     "tertiary_registrator_values"
+    t.datetime "tertiary_registrator_start"
+    t.datetime "tertiary_registrator_end"
   end
 
   create_table "ipacdata", id: false, force: :cascade do |t|
