@@ -4,17 +4,9 @@ class V1::CardsController < V1::V1Controller
   def index
     pagination = {}
     query = {}
-    # problem
-    # all problem eller inte problem
-    # all_problems mot+adm m problem
-    # review_problems mot m probl
-    # admin_problems adm m probl
-    # problem all, no_problem,only_problem
-    #
-    # image_id (text)
     ipac_image_id = params[:image_id] || ''
-    sortfield = params[:sortfield] || 'created_at'
-    sortdir = params[:sortdir] || 'DESC'
+    sortfield = params[:sortfield] || 'ipac_image_id'
+    sortdir = params[:sortdir] || 'ASC'
 
     problem = params[:problem] || 'all'
 
