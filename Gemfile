@@ -26,4 +26,6 @@ group :development do
   gem 'capistrano-rvm'
 end
 
+gem 'will_paginate'
+
 gem 'rack-cors', :require => 'rack/cors'
