@@ -5,12 +5,10 @@ RSpec.describe V1::CardsController, :type => :controller do
     api_users = APP_CONFIG['api_key_users']
     @test_api_key = api_users.find { |user| user['username'] == 'test_key_user'}['api_key']
     @test_admin_api_key = api_users.find { |user| user['username'] == 'test_admin_key_user'}['api_key']
+    @admin_user = create(:admin_user)
   end
 
   describe "index" do
-    before :each do
-      @admin_user = create(:admin_user)
-    end
     context "without credentials, access token or key" do
       it "should fail with 403" do
         cards = create_list(:card, 10)
@@ -183,6 +181,16 @@ RSpec.describe V1::CardsController, :type => :controller do
 
         expect(json['card']).to be nil
         expect(response.status).to eq 404
+      end
+    end
+
+    context "for admin user" do
+      it "should return card if image_id exists" do
+        card = create(:card, ipac_image_id: 12345)
+
+        get :show, id: 12345, token: @admin_user.valid_tokens.first
+        expect(response.status).to eq(200)
+        expect(json['card']).to_not be nil
       end
     end
   end
