@@ -47,9 +47,9 @@ class V1::CardsController < V1::V1Controller
   def show
     username = @current_user.username
 
-    registration_type = params[:registration_type]
+    identifier = params[:identifier]
 
-    if registration_type == "primary"
+    if identifier == "primary"
       # Find card for primary registration
       card = Card.where("primary_registrator_start IS NULL OR (now() > primary_registrator_start + interval '1' day)").where(primary_registrator_end: nil).order(:ipac_image_id).first
       if card && !card.update_attributes(primary_registrator_username: username, primary_registrator_start: Time.now)
@@ -59,7 +59,7 @@ class V1::CardsController < V1::V1Controller
       end
     end
 
-    if registration_type == "secondary"
+    if identifier == "secondary"
       # Find card for primary registration
       cards = Card.where.not(primary_registrator_username: username).where.not(primary_registrator_end: nil).where("secondary_registrator_start IS NULL OR (now() > secondary_registrator_start + interval '1' day)").where(secondary_registrator_end: nil).order(:ipac_image_id)
       card = cards.first
@@ -67,6 +67,13 @@ class V1::CardsController < V1::V1Controller
         error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card", card.errors)
         render_json
         return
+      end
+    end
+
+    # Find Card by ipac_image_id if identifier is numeric and user is admin
+    if (@current_user.has_right?('admin'))
+      if (identifier =~ /[\d]+/ )
+        card = Card.find_by_ipac_image_id(identifier)
       end
     end
 

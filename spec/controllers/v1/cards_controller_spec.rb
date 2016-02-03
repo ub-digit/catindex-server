@@ -81,7 +81,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         user = create(:user)
         card = create(:not_started_card)
 
-        get :show, registration_type: "primary"
+        get :show, identifier: "primary"
 
         expect(response.status).to eq(403)
       end
@@ -91,7 +91,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         user = create(:user)
         card = create(:not_started_card)
 
-        get :show, registration_type: "primary", token: user.valid_tokens.first
+        get :show, identifier: "primary", token: user.valid_tokens.first
 
         expect(json['card']).to_not be nil
         expect(json['card']['id']).to eq card.id
@@ -108,7 +108,7 @@ RSpec.describe V1::CardsController, :type => :controller do
 
         card.update_attributes(primary_registrator_start: old_starttime, primary_registrator_username: old_user.username)
 
-        get :show, registration_type: "primary", token: user.valid_tokens.first
+        get :show, identifier: "primary", token: user.valid_tokens.first
 
         expect(json['card']).to_not be nil
         expect(json['card']['id']).to eq card.id
@@ -121,7 +121,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         user = create(:user)
         card = create(:primary_started_card)
 
-        get :show, registration_type: "primary", token: user.valid_tokens.first
+        get :show, identifier: "primary", token: user.valid_tokens.first
 
         expect(json['card']).to be nil
         expect(response.status).to eq 404
@@ -133,7 +133,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         user = create(:user)
         card = create(:primary_ended_card, primary_registrator_username: old_user.username)
 
-        get :show, registration_type: "secondary", token: user.valid_tokens.first
+        get :show, identifier: "secondary", token: user.valid_tokens.first
 
         expect(json['card']).to_not be nil
         expect(json['card']['id']).to eq card.id
@@ -151,7 +151,7 @@ RSpec.describe V1::CardsController, :type => :controller do
 
         card.update_attributes(secondary_registrator_start: old_starttime, secondary_registrator_username: old_user.username)
 
-        get :show, registration_type: "secondary", token: user.valid_tokens.first
+        get :show, identifier: "secondary", token: user.valid_tokens.first
 
         expect(json['card']).to_not be nil
         expect(json['card']['id']).to eq card.id
@@ -166,7 +166,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         user = create(:user)
         card = create(:secondary_started_card, primary_registrator_username: primary_user.username, secondary_registrator_username: secondary_user.username)
 
-        get :show, registration_type: "secondary", token: user.valid_tokens.first
+        get :show, identifier: "secondary", token: user.valid_tokens.first
 
         expect(json['card']).to be nil
         expect(response.status).to eq 404
@@ -177,7 +177,7 @@ RSpec.describe V1::CardsController, :type => :controller do
         user = create(:user)
         card = create(:primary_ended_card, primary_registrator_username: user.username)
 
-        get :show, registration_type: "secondary", token: user.valid_tokens.first
+        get :show, identifier: "secondary", token: user.valid_tokens.first
 
         expect(json['card']).to be nil
         expect(response.status).to eq 404
@@ -188,9 +188,32 @@ RSpec.describe V1::CardsController, :type => :controller do
       it "should return card if image_id exists" do
         card = create(:card, ipac_image_id: 12345)
 
-        get :show, id: 12345, token: @admin_user.valid_tokens.first
+        get :show, identifier: 12345, token: @admin_user.valid_tokens.first
         expect(response.status).to eq(200)
         expect(json['card']).to_not be nil
+      end
+      it "should return error if card does not exist" do
+        get :show, identifier: 12345, token: @admin_user.valid_tokens.first
+        expect(response.status).to eq(404)
+        expect(json['card']).to be nil
+        expect(json['error']['msg']).to eq('Could not find a card')
+      end
+      it "should return error if identifier is incorrect" do
+        get :show, identifier: 'tjottabengtsson', token: @admin_user.valid_tokens.first
+        expect(response.status).to eq(404)
+        expect(json['card']).to be nil
+        expect(json['error']['msg']).to eq('Could not find a card')
+      end
+      it "should return card if user is admin user" do
+        card = create(:card, ipac_image_id: 12345)
+        get :show, identifier: 12345, token: @admin_user.valid_tokens.first
+        expect(response.status).to eq(200)
+      end
+      it "should return error if user is not admin user" do
+        operator = create(:user, username: 'xyzxyz', password: 'xyzxyz', role: 'OPER')
+        card = create(:card, ipac_image_id: 12345)
+        get :show, identifier: 12345, token: operator.valid_tokens.first
+        expect(response.status).to eq(404)
       end
     end
   end
