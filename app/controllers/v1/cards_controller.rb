@@ -51,7 +51,7 @@ class V1::CardsController < V1::V1Controller
     query[:total] = @cards.total_entries
 
     if(add_ipac_mismatch)
-      @cards = @cards.map do |card| 
+      @cards = @cards.map do |card|
         card = card.as_json
         card['ipac_lookup_mismatch']= true if card['ipac_lookup'] != card['lookup_field_value']
         card
@@ -91,6 +91,11 @@ class V1::CardsController < V1::V1Controller
     if (@current_user.has_right?('admin'))
       if (identifier =~ /[\d]+/ )
         card = Card.find_by_ipac_image_id(identifier)
+        if card && !card.update_attributes(tertiary_registrator_username: username, tertiary_registrator_start: Time.now)
+          error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card", card.errors)
+          render_json
+          return
+        end
       end
     end
 
@@ -139,6 +144,15 @@ class V1::CardsController < V1::V1Controller
           if !card.update_attributes({secondary_registrator_values: card.registrator_json,
                                  secondary_registrator_problem: card_params[:secondary_registrator_problem],
                                  secondary_registrator_end: Time.now})
+            error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card #{card.id}", card.errors)
+            raise ActiveRecord::Rollback
+          end
+        end
+
+        if registration_type == "tertiary"
+          if !card.update_attributes({tertiary_registrator_values: card.registrator_json,
+                                 tertiary_registrator_problem: card_params[:tertiary_registrator_problem],
+                                 tertiary_registrator_end: Time.now})
             error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card #{card.id}", card.errors)
             raise ActiveRecord::Rollback
           end
