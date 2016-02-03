@@ -30,4 +30,17 @@ class Card < ActiveRecord::Base
   def self.all_problems(cards = Card)
     cards.where("id in (?) or id in (?)", admin_problems.select(:id), review_problems.select(:id))
   end
+
+  # Cards with ipac_lookup data
+  def self.indexed_ipac_lookup_cards(cards = Card)
+    cards.where.not(ipac_lookup: nil).
+      where.not(primary_registrator_end: nil).
+      select("*,round(100*levenshtein(ipac_lookup,lookup_field_value)::numeric/levenshtein(ipac_lookup,''),1) as difference")
+  end
+
+  # Cards with ipac_lookup data and current lookup_field_value not matching ipac_lookup
+  def self.ipac_lookup_cards_with_mismatch(cards = Card)
+    indexed_ipac_lookup_cards(cards).where("ipac_lookup != lookup_field_value").
+      where.not(lookup_field_value: nil)
+  end
 end
