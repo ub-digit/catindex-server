@@ -9,6 +9,7 @@ class V1::CardsController < V1::V1Controller
     sortdir = params[:sortdir] || 'ASC'
 
     problem = params[:problem] || 'all'
+    add_ipac_mismatch = false
 
     @cards = Card.paginate(page: params[:page])
     if @cards.current_page > @cards.total_pages
@@ -27,6 +28,14 @@ class V1::CardsController < V1::V1Controller
       if (problem == 'all_problems')
         @cards = Card.all_problems(@cards)
       end
+      if (problem == 'indexed_ipac_lookup_cards')
+        @cards = Card.indexed_ipac_lookup_cards(@cards)
+        add_ipac_mismatch = true
+      end
+      if (problem == 'ipac_lookup_cards_with_mismatch')
+        @cards = Card.ipac_lookup_cards_with_mismatch(@cards)
+        add_ipac_mismatch = true
+      end
     end
 
     #@cards = @cards.where.not(tertiary_registrator_end: nil) if level == ''
@@ -40,6 +49,14 @@ class V1::CardsController < V1::V1Controller
     pagination[:previous] = @cards.previous_page
 
     query[:total] = @cards.total_entries
+
+    if(add_ipac_mismatch)
+      @cards = @cards.map do |card| 
+        card = card.as_json
+        card['ipac_lookup_mismatch']= true if card['ipac_lookup'] != card['lookup_field_value']
+        card
+      end
+    end
 
     render json: {cards: @cards, meta: {pagination: pagination, query: query}}, status: 200
   end
