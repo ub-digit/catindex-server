@@ -144,6 +144,17 @@ RSpec.describe V1::CardsController, :type => :controller do
         
         expect(json['card']['previous_card_lookup_value']).to be nil
       end
+
+      it "should skip previous cards until one with lookup value exists" do
+        user = create(:user)
+        create(:primary_ended_card, ipac_image_id: 1, lookup_field_value: "test lookup 1")
+        create(:primary_ended_card, ipac_image_id: 2, lookup_field_value: "")
+        create(:not_started_card, ipac_image_id: 3)
+        
+        get :show, identifier: "primary", token: user.valid_tokens.first
+        
+        expect(json['card']['previous_card_lookup_value']).to eq("test lookup 1")
+      end
     end
     context "for primary registration with card that is is started two days ago and not ended" do
       it "should return card" do
