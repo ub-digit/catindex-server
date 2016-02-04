@@ -40,6 +40,9 @@ class V1::UsersController < V1::V1Controller
         totals.merge!(secondary_ended_card_count: Card.secondary_ended_card_count)
         totals.merge!(tertiary_ended_card_count: Card.tertiary_ended_card_count)
         totals.merge!(not_started_card_count: Card.not_started_card_count)
+        totals.merge!(main_card_count: Card.main_card_count)
+        totals.merge!(reference_card_count: Card.reference_card_count)
+        totals.merge!(pseudonym_card_count: Card.pseudonym_card_count)
         statistics.merge!(totals: totals)
       end
       user.merge!(statistics: statistics)

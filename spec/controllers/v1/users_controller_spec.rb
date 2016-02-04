@@ -51,10 +51,6 @@ RSpec.describe V1::UsersController, :type => :controller do
       @oper_1 = create(:user, username: 'pelle', password: 'pelle', role: 'OPER')
       @oper_2 = create(:user, username: 'olle', password: 'olle', role: 'OPER')
       @admin = create(:admin_user)
-      cards = create_list(:not_started_card, 40)
-      cards += create_list(:primary_ended_card, 30)
-      cards += create_list(:secondary_ended_card, 20)
-      cards += create_list(:tertiary_ended_card, 10)
     end
     context "OPER user" do
       it "should get correct user statistic values" do
@@ -78,37 +74,65 @@ RSpec.describe V1::UsersController, :type => :controller do
         get :statistics, id: @admin.username, token: @admin.valid_tokens.first
         expect(json['user']['statistics']['totals']).to_not be nil
       end
-    # Totalt antal kort
-    # Totalt antal kort kvar att indexera
-    # Totalt antal indexerade kort
-    # Totalt antal motlästa kort
-    # Totalt antal Adminlästa kort
 
-      it "should get total number of cards" do
-        get :statistics, id: @admin.username, token: @admin.valid_tokens.first
-        expect(json['user']['statistics']['totals']['card_count']).to_not be nil
-        expect(json['user']['statistics']['totals']['card_count']).to eq(100)
+      context "looking for totals" do
+        before :each do
+          cards = create_list(:not_started_card, 40)
+          cards += create_list(:primary_ended_card, 30)
+          cards += create_list(:secondary_ended_card, 20)
+          cards += create_list(:tertiary_ended_card, 10)
+        end
+
+        it "should get total number of cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['card_count']).to_not be nil
+          expect(json['user']['statistics']['totals']['card_count']).to eq(100)
+        end
+
+        it "should get total number of indexed cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['primary_ended_card_count']).to eq(30)
+        end
+
+        it "should get total number of reviewed cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['secondary_ended_card_count']).to eq(20)
+        end
+
+        it "should get total number of admin viewed cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['tertiary_ended_card_count']).to eq(10)
+        end
+
+        it "should get total number of not started cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['not_started_card_count']).to eq(40)
+        end
       end
 
-      it "should get total number of indexed cards" do
-        get :statistics, id: @admin.username, token: @admin.valid_tokens.first
-        expect(json['user']['statistics']['totals']['primary_ended_card_count']).to eq(30)
+      context "looking for card type totals" do
+        before :each do
+          cards = create_list(:card, 30, card_type: 'main')
+          cards += create_list(:card, 20, card_type: 'reference')
+          cards += create_list(:card, 10, card_type: 'pseudonym')
+        end
+
+        it "should get total number of main cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['main_card_count']).to eq(30)
+        end
+
+        it "should get total number of reference cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['reference_card_count']).to eq(20)
+        end
+
+        it "should get total number of pseudonym cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['pseudonym_card_count']).to eq(10)
+        end
       end
 
-      it "should get total number of reviewed cards" do
-        get :statistics, id: @admin.username, token: @admin.valid_tokens.first
-        expect(json['user']['statistics']['totals']['secondary_ended_card_count']).to eq(20)
-      end
-
-      it "should get total number of admin viewed cards" do
-        get :statistics, id: @admin.username, token: @admin.valid_tokens.first
-        expect(json['user']['statistics']['totals']['tertiary_ended_card_count']).to eq(10)
-      end
-
-      it "should get total number of not started cards" do
-        get :statistics, id: @admin.username, token: @admin.valid_tokens.first
-        expect(json['user']['statistics']['totals']['not_started_card_count']).to eq(40)
-      end
     end
   end
 end

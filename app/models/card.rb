@@ -74,4 +74,17 @@ class Card < ActiveRecord::Base
   def self.tertiary_ended_card_count
     Card.where.not(tertiary_registrator_end: nil).count
   end
+
+  def self.main_card_count
+    Card.where(card_type: 'main').count
+  end
+
+  def self.reference_card_count
+    Card.where(card_type: 'reference').count
+  end
+
+  def self.pseudonym_card_count
+    Card.where(card_type: 'pseudonym').count
+  end
+
 end
