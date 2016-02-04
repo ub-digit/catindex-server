@@ -20,6 +20,8 @@ class Card < ActiveRecord::Base
   def previous_card_lookup_value
     previous_card = Card.where("ipac_image_id < ?", ipac_image_id).
       where.not(primary_registrator_end: nil).
+      where.not(lookup_field_value: nil).
+      where.not(lookup_field_value: "").
       order(:ipac_image_id).reverse_order.first
     if previous_card
       return previous_card.lookup_field_value
