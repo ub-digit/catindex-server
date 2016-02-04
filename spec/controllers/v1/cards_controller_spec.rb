@@ -62,6 +62,33 @@ RSpec.describe V1::CardsController, :type => :controller do
           expect(json['cards'].count).to eq(28)
         end
       end
+      context "ipac lookup comparison" do
+        before :each do
+          create(:primary_ended_card, ipac_lookup: "test lookup", lookup_field_value: "test lookup")
+          create(:secondary_ended_card, ipac_lookup: "test another lookup", lookup_field_value: "test another lookup")
+          create(:primary_ended_card, ipac_lookup: "test lookup correct", lookup_field_value: "test lookup error")
+          create(:secondary_ended_card, ipac_lookup: "test another lookup correct", lookup_field_value: "really bad error")
+        end
+        context "with indexed_ipac_lookup_cards filter" do
+          it "should return a list with indexed cards that have ipac_lookup set" do
+            get :index, problem: 'indexed_ipac_lookup_cards', token: @admin_user.valid_tokens.first
+            expect(json['cards'].count).to eq(4)
+            expect(json['cards'][0]['difference']).to eq("0.0")
+            expect(json['cards'][1]['difference']).to eq("0.0")
+            expect(json['cards'][2]['difference']).to_not eq("0.0")
+            expect(json['cards'][3]['difference']).to_not eq("0.0")
+          end
+        end
+        context "with ipac_lookup_cards_with_mismatch filter" do
+          it "should return a list with indexed cards that have ipac_lookup set and differs from current lookup_field_value" do
+            get :index, problem: 'ipac_lookup_cards_with_mismatch', token: @admin_user.valid_tokens.first
+            expect(json['cards'].count).to eq(2)
+            expect(json['cards'][0]['difference']).to_not eq("0.0")
+            expect(json['cards'][1]['difference']).to_not eq("0.0")
+            expect(json['cards'][1]['difference'].to_f).to be > json['cards'][0]['difference'].to_f
+          end
+        end
+      end
     end
 
     context "with given image_id" do
