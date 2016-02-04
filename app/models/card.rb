@@ -54,4 +54,24 @@ class Card < ActiveRecord::Base
     indexed_ipac_lookup_cards(cards).where("ipac_lookup != lookup_field_value").
       where.not(lookup_field_value: nil)
   end
+
+  def self.card_count
+    Card.all.count
+  end
+
+  def self.not_started_card_count
+    Card.where(primary_registrator_end: nil).count
+  end
+
+  def self.primary_ended_card_count
+    Card.where.not(primary_registrator_end: nil).where(secondary_registrator_end: nil).count
+  end
+
+  def self.secondary_ended_card_count
+    Card.where.not(secondary_registrator_end: nil).where(tertiary_registrator_end: nil).count
+  end
+
+  def self.tertiary_ended_card_count
+    Card.where.not(tertiary_registrator_end: nil).count
+  end
 end

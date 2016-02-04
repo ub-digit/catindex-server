@@ -34,7 +34,13 @@ class V1::UsersController < V1::V1Controller
       statistics.merge!(secondary_registered_card_count: u.secondary_registered_card_count)
       statistics.merge!(available_for_secondary_registration_count: u.available_for_secondary_registration_count)
       if u.role == 'ADMIN'
-        statistics.merge!(admin_statistics: 'admin_statistics')
+        totals = {}
+        totals.merge!(card_count: Card.card_count)
+        totals.merge!(primary_ended_card_count: Card.primary_ended_card_count)
+        totals.merge!(secondary_ended_card_count: Card.secondary_ended_card_count)
+        totals.merge!(tertiary_ended_card_count: Card.tertiary_ended_card_count)
+        totals.merge!(not_started_card_count: Card.not_started_card_count)
+        statistics.merge!(totals: totals)
       end
       user.merge!(statistics: statistics)
 
