@@ -33,6 +33,9 @@ class V1::UsersController < V1::V1Controller
       statistics.merge!(primary_registered_card_count: u.primary_registered_card_count)
       statistics.merge!(secondary_registered_card_count: u.secondary_registered_card_count)
       statistics.merge!(available_for_secondary_registration_count: u.available_for_secondary_registration_count)
+      if u.role == 'ADMIN'
+        statistics.merge!(admin_statistics: 'admin_statistics')
+      end
       user.merge!(statistics: statistics)
 
       @response[:user] = user
