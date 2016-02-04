@@ -125,6 +125,25 @@ RSpec.describe V1::CardsController, :type => :controller do
         expect(json['card']['primary_registrator_username']).to eq user.username
         expect(json['card']['primary_registrator_start']).to_not be nil
       end
+      
+      it "should return previous card lookup value when such exist" do
+        create(:primary_ended_card, ipac_image_id: 1, lookup_field_value: "test lookup 1")
+        user = create(:user)
+        create(:not_started_card, ipac_image_id: 2)
+        
+        get :show, identifier: "primary", token: user.valid_tokens.first
+        
+        expect(json['card']['previous_card_lookup_value']).to eq("test lookup 1")
+      end
+
+      it "should return nil as previous card lookup value when no previous card exists" do
+        user = create(:user)
+        create(:not_started_card, ipac_image_id: 1)
+        
+        get :show, identifier: "primary", token: user.valid_tokens.first
+        
+        expect(json['card']['previous_card_lookup_value']).to be nil
+      end
     end
     context "for primary registration with card that is is started two days ago and not ended" do
       it "should return card" do

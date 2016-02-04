@@ -73,6 +73,9 @@ class V1::CardsController < V1::V1Controller
         error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card", card.errors)
         render_json
         return
+      elsif card
+        previous_card_lookup_value = card.previous_card_lookup_value
+        card = card.as_json.merge(previous_card_lookup_value: previous_card_lookup_value)
       end
     end
 

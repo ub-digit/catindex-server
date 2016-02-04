@@ -17,6 +17,17 @@ class Card < ActiveRecord::Base
     }
   end
 
+  def previous_card_lookup_value
+    previous_card = Card.where("ipac_image_id < ?", ipac_image_id).
+      where.not(primary_registrator_end: nil).
+      order(:ipac_image_id).reverse_order.first
+    if previous_card
+      return previous_card.lookup_field_value
+    else
+      return nil
+    end
+  end
+
   def self.admin_problems(cards = Card)
     cards.where.not(tertiary_registrator_end: nil).where.not(tertiary_registrator_problem: '')
   end
