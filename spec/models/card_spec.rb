@@ -21,5 +21,11 @@ RSpec.describe Card, :type => :model do
       
       expect(cards.uniq.size).to_not eq(1)
     end
+
+    it "should not return cards with problems" do
+      create(:secondary_ended_card, secondary_registrator_problem: "There is a problem")
+
+      expect(Card.sample_card).to be nil
+    end
   end
 end

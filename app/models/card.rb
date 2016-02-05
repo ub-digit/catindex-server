@@ -32,11 +32,13 @@ class Card < ActiveRecord::Base
 
   def self.sample_card
     sample_selection_count = Card.where.not(secondary_registrator_end: nil).
-      where(tertiary_registrator_end: nil).count
+      where(tertiary_registrator_end: nil).
+      where(secondary_registrator_problem: "").count
     sample_query = <<-SQL
 SELECT * FROM cards
  WHERE secondary_registrator_end IS NOT NULL
  AND tertiary_registrator_end IS NULL
+ AND secondary_registrator_problem = ''
  OFFSET FLOOR(RANDOM()*#{sample_selection_count})
  LIMIT 1
     SQL
