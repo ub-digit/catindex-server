@@ -113,6 +113,23 @@ RSpec.describe V1::CardsController, :type => :controller do
         expect(response.status).to eq(403)
       end
     end
+
+    # Actual randomness is tested in model test
+    context "random sample card" do
+      before :each do
+        create_list(:secondary_ended_card, 100)
+      end
+      it "should not allow oper" do
+        user = create(:user)
+
+        get :show, identifier: "sample", token: user.valid_tokens.first
+        expect(response.status).to eq(403)
+      end
+      it "should return a random card when admin" do
+        get :show, identifier: "sample", token: @admin_user.valid_tokens.first
+        expect(response.status).to eq(200)
+      end
+    end
     context "for primary registration with cards" do
       it "should return a card for registration" do
         user = create(:user)

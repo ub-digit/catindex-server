@@ -30,6 +30,19 @@ class Card < ActiveRecord::Base
     end
   end
 
+  def self.sample_card
+    sample_selection_count = Card.where.not(secondary_registrator_end: nil).
+      where(tertiary_registrator_end: nil).count
+    sample_query = <<-SQL
+SELECT * FROM cards
+ WHERE secondary_registrator_end IS NOT NULL
+ AND tertiary_registrator_end IS NULL
+ OFFSET FLOOR(RANDOM()*#{sample_selection_count})
+ LIMIT 1
+    SQL
+    Card.find_by_sql(sample_query).first
+  end
+
   def self.admin_problems(cards = Card)
     cards.where.not(tertiary_registrator_end: nil).where.not(tertiary_registrator_problem: '')
   end

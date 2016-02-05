@@ -66,6 +66,16 @@ class V1::CardsController < V1::V1Controller
 
     identifier = params[:identifier]
 
+    if identifier == "sample"
+      if @current_user.has_right?("admin")
+        card = Card.sample_card
+      else
+        error_msg(ErrorCodes::PERMISSION_ERROR, "You don't have the necessary rights to perform this action")
+        render_json
+        return
+      end
+    end
+
     if identifier == "primary"
       # Find card for primary registration
       card = Card.where("primary_registrator_start IS NULL OR (now() > primary_registrator_start + interval '1' day)").where(primary_registrator_end: nil).order(:ipac_image_id).first

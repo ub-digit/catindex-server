@@ -9,4 +9,17 @@ RSpec.describe Card, :type => :model do
       expect(card.previous_card_lookup_value).to eq("test lookup 1")
     end
   end
+
+  context "sample card" do
+    it "should fetch a random card" do
+      create_list(:secondary_ended_card, 100)
+      cards = []
+      cards << Card.sample_card.id
+      cards << Card.sample_card.id
+      cards << Card.sample_card.id
+      cards << Card.sample_card.id
+      
+      expect(cards.uniq.size).to_not eq(1)
+    end
+  end
 end
