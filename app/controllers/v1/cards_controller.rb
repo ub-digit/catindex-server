@@ -69,6 +69,11 @@ class V1::CardsController < V1::V1Controller
     if identifier == "sample"
       if @current_user.has_right?("admin")
         card = Card.sample_card
+        if card && !card.update_attributes(tertiary_registrator_username: username, tertiary_registrator_start: Time.now)
+          error_msg(ErrorCodes::VALIDATION_ERROR, "Could not update card", card.errors)
+          render_json
+          return
+        end
       else
         error_msg(ErrorCodes::PERMISSION_ERROR, "You don't have the necessary rights to perform this action")
         render_json
