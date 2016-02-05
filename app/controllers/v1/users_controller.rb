@@ -43,6 +43,8 @@ class V1::UsersController < V1::V1Controller
         totals.merge!(main_card_count: Card.main_card_count)
         totals.merge!(reference_card_count: Card.reference_card_count)
         totals.merge!(pseudonym_card_count: Card.pseudonym_card_count)
+        totals.merge!(primary_ended_average_time: Card.primary_ended_average_time)
+        totals.merge!(secondary_ended_average_time: Card.secondary_ended_average_time)
         statistics.merge!(totals: totals)
       end
       user.merge!(statistics: statistics)

@@ -104,4 +104,22 @@ SELECT * FROM cards
     Card.where(card_type: 'pseudonym').count
   end
 
+  def self.primary_ended_average_time
+    time = Card.where.not(primary_registrator_end: nil).
+      where("primary_registrator_end-primary_registrator_start < '15 minutes'::interval").
+      select("avg(primary_registrator_end-primary_registrator_start) as average").order("average").first
+    return nil if !time || !time.average
+    interval = Time.parse(time.average) - Time.parse("00:00:00")
+    return (1000*interval).to_i
+  end
+
+  def self.secondary_ended_average_time
+    time = Card.where.not(secondary_registrator_end: nil).
+      where("secondary_registrator_end-secondary_registrator_start < '15 minutes'::interval").
+      select("avg(secondary_registrator_end-secondary_registrator_start) as average").order("average").first
+    return nil if !time || !time.average
+    interval = Time.parse(time.average) - Time.parse("00:00:00")
+    return (1000*interval).to_i
+  end
+
 end

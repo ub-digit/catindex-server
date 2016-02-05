@@ -110,6 +110,30 @@ RSpec.describe V1::UsersController, :type => :controller do
         end
       end
 
+      context "looking for average times" do
+        before :each do
+          time_start = Time.now
+          create(:not_started_card, primary_registrator_start: time_start, primary_registrator_end: time_start + 1.minute)
+          create(:not_started_card, primary_registrator_start: time_start, primary_registrator_end: time_start + 1.minute)
+          create(:not_started_card, primary_registrator_start: time_start, primary_registrator_end: time_start + 2.minute)
+          create(:not_started_card, primary_registrator_start: time_start, primary_registrator_end: time_start + 3.minute)
+          create(:not_started_card, primary_registrator_start: time_start, primary_registrator_end: time_start + 3.minute)
+          create(:not_started_card, secondary_registrator_start: time_start, secondary_registrator_end: time_start + 2.minute)
+          create(:not_started_card, secondary_registrator_start: time_start, secondary_registrator_end: time_start + 2.minute)
+          create(:not_started_card, secondary_registrator_start: time_start, secondary_registrator_end: time_start + 4.minute)
+          create(:not_started_card, secondary_registrator_start: time_start, secondary_registrator_end: time_start + 6.minute)
+          create(:not_started_card, secondary_registrator_start: time_start, secondary_registrator_end: time_start + 6.minute)
+        end
+        it "should get average value of time for indexed cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['primary_ended_average_time']).to eq(120000)
+        end
+        it "should get average value of time for reviewed cards" do
+          get :statistics, id: @admin.username, token: @admin.valid_tokens.first
+          expect(json['user']['statistics']['totals']['secondary_ended_average_time']).to eq(240000)
+        end
+      end
+
       context "looking for card type totals" do
         before :each do
           cards = create_list(:card, 30, card_type: 'main')
