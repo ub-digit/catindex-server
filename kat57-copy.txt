@@ -1,13 +1,24 @@
-Från textfil med ipac-data (ipac-to-catindex3.tab).
+* Fixa locale för sv_SE.UTF8
 
-Skapa en tabell i databasen:
+* Sätt upp rättigheter i pg_hba.conf
+
+* Gör en deploy med capistrano (som kommer att misslyckas)
+* Gå till skapad release-katalog: releases/20160129091742/ eller dylikt datum
+cd releases/20160129091742/
+RAILS_ENV=staging bundle exec rake db:setup
+
+* Från textfil med ipac-data (ipac-to-catindex3.tab).
+
+* Skapa en tabell i databasen:
 CREATE TABLE ipacdata (ipac_image_id INT, ipac_note TEXT, ipac_lookup TEXT);
 
 SET CLIENT_ENCODING TO Latin1;
 
-Ladda in ipac-filen till denna tabell (delimiter är ett tabbtecken):
-COPY ipacdata (ipac_image_id, ipac_note, ipac_lookup) FROM '/tmp/ipac-to-catindex3.tab' DELIMITER '	';
-COPY ipacdata (ipac_image_id, ipac_note, ipac_lookup) FROM '/tmp/ipac-to-catindex3.tab' DELIMITER E'\t';
+* Ladda in ipac-filen till denna tabell (delimiter är ett tabbtecken):
+-- COPY ipacdata (ipac_image_id, ipac_note, ipac_lookup) FROM '/var/tmp/ipac-to-catindex3.tab' DELIMITER '	';
+COPY ipacdata (ipac_image_id, ipac_note, ipac_lookup) FROM '/var/tmp/ipac-to-catindex3.tab' DELIMITER E'\t';
 
-Skapa tomma kort för varje ipacdata-rad.
+* Skapa tomma kort för varje ipacdata-rad.
 INSERT INTO cards (ipac_image_id, ipac_note, ipac_lookup, created_at, updated_at) SELECT ipac_image_id, ipac_note, ipac_lookup, now(), now() FROM ipacdata;
+
+* Gör en ny deploy med capistrano.
